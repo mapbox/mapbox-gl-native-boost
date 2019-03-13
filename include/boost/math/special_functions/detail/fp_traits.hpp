@@ -24,7 +24,7 @@ With these techniques, the code could be simplified.
 
 #include <boost/assert.hpp>
 #include <boost/cstdint.hpp>
-#include <boost/detail/endian.hpp>
+#include <boost/predef/other/endian.h>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_floating_point.hpp>
 
@@ -51,9 +51,9 @@ With these techniques, the code could be simplified.
          && (_GLIBCXX_USE_C99_FP_MACROS_DYNAMIC != 0))
 #     ifdef _STLP_VENDOR_CSTD
 #        if _STLPORT_VERSION >= 0x520
-#           define BOOST_FPCLASSIFY_PREFIX ::__std_alias:: 
+#           define BOOST_FPCLASSIFY_PREFIX ::__std_alias::
 #        else
-#           define BOOST_FPCLASSIFY_PREFIX ::_STLP_VENDOR_CSTD:: 
+#           define BOOST_FPCLASSIFY_PREFIX ::_STLP_VENDOR_CSTD::
 #        endif
 #     else
 #        define BOOST_FPCLASSIFY_PREFIX ::std::
@@ -84,7 +84,7 @@ namespace detail {
 
 //------------------------------------------------------------------------------
 
-/* 
+/*
 The following classes are used to tag the different methods that are used
 for floating point classification
 */
@@ -216,9 +216,9 @@ template<> struct fp_traits_non_native<double, double_precision>
 
 private:
 
-#if defined(BOOST_BIG_ENDIAN)
+#if BOOST_ENDIAN_BIG_BYTE
     BOOST_STATIC_CONSTANT(int, offset_ = 0);
-#elif defined(BOOST_LITTLE_ENDIAN)
+#elif BOOST_ENDIAN_LITTLE_BYTE
     BOOST_STATIC_CONSTANT(int, offset_ = 4);
 #else
     BOOST_STATIC_ASSERT(false);
@@ -276,9 +276,9 @@ template<> struct fp_traits_non_native<long double, double_precision>
 
 private:
 
-#if defined(BOOST_BIG_ENDIAN)
+#if BOOST_ENDIAN_BIG_BYTE
     BOOST_STATIC_CONSTANT(int, offset_ = 0);
-#elif defined(BOOST_LITTLE_ENDIAN)
+#elif BOOST_ENDIAN_LITTLE_BYTE
     BOOST_STATIC_CONSTANT(int, offset_ = 4);
 #else
     BOOST_STATIC_ASSERT(false);
@@ -366,13 +366,6 @@ struct fp_traits_non_native<long double, extended_double_precision>
 
 // PowerPC extended double precision format (128 bits)
 
-// Current 'fp_traits_non_native' does not work correctly with IBM long double
-// due the fact that for some operations, like sign manipulation, the algorithm
-// should manipulate both 'double' value.  For algorithms that only depend on
-// the most significant 32 bits (for instance, isinf or isnan), using the
-// template double especialization is suffient.
-
-#if 0
 template<>
 struct fp_traits_non_native<long double, extended_double_precision>
 {
@@ -397,15 +390,15 @@ struct fp_traits_non_native<long double, extended_double_precision>
 
 private:
 
-#if defined(BOOST_BIG_ENDIAN)
+#if BOOST_ENDIAN_BIG_BYTE
     BOOST_STATIC_CONSTANT(int, offset_ = 0);
-#elif defined(BOOST_LITTLE_ENDIAN)
+#elif BOOST_ENDIAN_LITTLE_BYTE
     BOOST_STATIC_CONSTANT(int, offset_ = 12);
 #else
     BOOST_STATIC_ASSERT(false);
 #endif
 };
-#endif
+
 
 // long double (>64 bits), Motorola 68K ----------------------------------------
 
@@ -478,9 +471,9 @@ struct fp_traits_non_native<long double, extended_double_precision>
 
 private:
 
-#if defined(BOOST_BIG_ENDIAN)
+#if BOOST_ENDIAN_BIG_BYTE
     BOOST_STATIC_CONSTANT(int, offset_ = 0);
-#elif defined(BOOST_LITTLE_ENDIAN)
+#elif BOOST_ENDIAN_LITTLE_BYTE
     BOOST_STATIC_CONSTANT(int, offset_ = 12);
 #else
     BOOST_STATIC_ASSERT(false);
@@ -563,7 +556,8 @@ struct select_native<long double>
    && !defined(__FAST_MATH__)\
    && !defined(BOOST_MATH_DISABLE_STD_FPCLASSIFY)\
    && !defined(BOOST_INTEL)\
-   && !defined(sun)
+   && !defined(sun)\
+   && !defined(__VXWORKS__)
 #  define BOOST_MATH_USE_STD_FPCLASSIFY
 #endif
 

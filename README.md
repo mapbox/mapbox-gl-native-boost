@@ -1,1 +1,1 @@
-libboost 1.65.1 for Mapbox Auto
+libboost 1.69 for Mapbox GL Native
